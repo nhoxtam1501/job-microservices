@@ -1,5 +1,7 @@
 package dev.ducku.review;
 
+import dev.ducku.review.messaging.ReviewMessageProducer;
+import jakarta.ws.rs.QueryParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,4 +51,10 @@ public class ReviewController {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.ok("Review deleted successfully");
     }
+
+    @GetMapping("/ratings/average")
+    public ResponseEntity<Double> calculateAverageRating(@QueryParam("companyId") Long companyId) {
+        return ResponseEntity.ok(reviewService.calculateAverageRating(companyId));
+    }
+
 }

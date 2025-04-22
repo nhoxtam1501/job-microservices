@@ -12,4 +12,6 @@ public interface ReviewService {
     Review updateReview(Review review, Long reviewId);
 
     void deleteReview(Long reviewId);
+
+    Double calculateAverageRating(Long companyId);
 }

@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: company_service
+          uri: lb://company-ms
+          predicates:
+            - Path=/companies/**
+          filters:
+            - AddResponseHeader=X-PoweredBy,nhoxtam1501-dev
+        - id: job_service
+          uri: lb://job-ms
+          predicates:
+            - Path=/jobs/**
+          filters:
+            - AddResponseHeader=X-PoweredBy,nhoxtam1501-dev
+        - id: review_service
+          uri: lb://review-ms
+          predicates:
+            - Path=/reviews/**
+          filters:
+            - AddResponseHeader=X-PoweredBy,nhoxtam1501-dev
+        - id: eureka_server
+          uri: ${DOCKER_EUREKA_URL}
+          predicates:
+            - Path=/eureka/main
+          filters:
+            - AddResponseHeader=X-PoweredBy,nhoxtam1501-dev
+            - SetPath=/ #redirect the /eureka/main to / in order to match with eureka server.
+        - id: eureka_server-static # use this to load static files, and give access to others subpage like /eureka/apps
+          uri: ${DOCKER_EUREKA_URL}
+          predicates:
+            - Path=/eureka/**
+
+server:
+  port: 8084
+
+logging:
+  level:
+    root: info
+    org.springframework.cloud.gateway: trace
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: info
+
+
+#Eureka
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${DOCKER_EUREKA_URL}
+
+
+#Zipkin
+management:
+  zipkin:
+    tracing:
+      endpoint: ${DOCKER_ZIPKIN_URL}
+  tracing:
+    sampling:
+      probability: 1.0

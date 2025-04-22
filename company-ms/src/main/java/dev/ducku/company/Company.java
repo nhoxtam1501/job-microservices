@@ -19,4 +19,5 @@ public class Company {
     private String name;
     private String description;
     private boolean isDeleted = false;
+    private Double rating;
 }

@@ -3,7 +3,7 @@ services:
     container_name: postgres_container
     image: postgres:16
     env_file:
-      - .env
+      - src/main/resources/.env
     volumes:
       - postgres:/data/postgres
     ports:
@@ -16,7 +16,7 @@ services:
     container_name: pgadmin_container
     image: dpage/pgadmin4
     env_file:
-      - .env
+      - src/main/resources/.env
     volumes:
       - pgadmin:/data/pgadmin
     ports:
@@ -29,11 +29,110 @@ services:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
-      - 9411:9411
+      - "9411:9411"
     networks:
       - postgres
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - postgres
+
+  config-server:
+    image: nhoxtam151/config-server
+    container_name: config-server
+    ports:
+      - "8080:8080"
+    networks:
+      - microservice-network
+    depends_on:
+      - service-registry
+    env_file:
+      - ../config-server/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  service-registry:
+    image: nhoxtam151/service-registry
+    container_name: service_registry
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+    depends_on:
+      - rabbitmq
+      - zipkin
+
+  job-ms:
+    image: nhoxtam151/job-ms
+    container_name: job-ms
+    ports:
+      - "8082:8082"
+    networks:
+      - microservice-network
+      - postgres
+    depends_on:
+      - service-registry
+      - postgres
+      - config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - ../job-ms/.env
+
+  company-ms:
+    image: nhoxtam151/company-ms
+    container_name: company-ms
+    ports:
+      - "8081:8081"
+    networks:
+      - microservice-network
+      - postgres
+    depends_on:
+      - service-registry
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - ../company-ms/.env
+
+  review-ms:
+    image: nhoxtam151/review-ms
+    container_name: review-ms
+    ports:
+      - "8083:8083"
+    networks:
+      - microservice-network
+      - postgres
+    depends_on:
+      - service-registry
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - ../review-ms/.env
+  api-gateway:
+    image: nhoxtam151/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8084:8084"
+    networks:
+      - microservice-network
+    depends_on:
+      - service-registry
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - ../api-gateway/.env
+
 networks:
   postgres:
+    driver: bridge
+  microservice-network:
     driver: bridge
 
 volumes:

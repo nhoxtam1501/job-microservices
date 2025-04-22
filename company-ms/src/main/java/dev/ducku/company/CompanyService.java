@@ -1,5 +1,7 @@
 package dev.ducku.company;
 
+import dev.ducku.company.dto.ReviewMessage;
+
 import java.util.List;
 
 public interface CompanyService {
@@ -12,4 +14,6 @@ public interface CompanyService {
     Company createCompany(Company company);
 
     boolean deleteCompany(long id);
+
+    void updateCompanyRating(Long companyId,ReviewMessage message);
 }

@@ -16,7 +16,6 @@ import java.util.List;
 @Slf4j
 public class JobController {
     private final JobService jobService;
-
     @Value("${message.default}")
     private String message;
 
@@ -55,7 +54,6 @@ public class JobController {
 
     @GetMapping("/message")
     public String getMessage() {
-        log.info("Message from heaven: {}", message);
         return message;
     }
 
